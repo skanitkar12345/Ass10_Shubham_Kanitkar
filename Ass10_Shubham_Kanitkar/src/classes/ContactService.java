@@ -8,7 +8,7 @@ import java.sql.*;
 
 public class ContactService {
 	
-	private static final String dbConfigFile = "src/database.properties";
+	//private static final String dbConfigFile = "src/database.properties";
 	
 	public void addContact(Contact contact, List<Contact> contacts) {
 		
@@ -37,6 +37,29 @@ public class ContactService {
         contacts.add(contact);
 	}
 	
+	public void removeContact(Contact contact, List<Contact> contacts) throws ContactNotFoundException{
+		
+		for (Contact c : contacts) {
+			if(c.getContactId()==contact.getContactId()) {
+				contacts.remove(c);
+				return;
+			}
+		}
+		
+		throw new ContactNotFoundException("Cannot Delete.Contact not found!");
+	}
+	
+	public Contact searchContacyByName(String name, List<Contact> contacts) throws ContactNotFoundException{
+		
+		for (Contact c : contacts) {
+			if(c.getContactName().equals(name)) {
+				return c;
+			}
+		}
+		
+		throw new ContactNotFoundException("Contact not found!");
+	}
+	
 	public static void main(String[] args) throws IOException, SQLException {
 		
 		ContactService cs = new ContactService();
@@ -47,12 +70,39 @@ public class ContactService {
 			System.out.println("------------------------------");
 			System.out.println("Enter choice ");
 			System.out.println("1. Add new contact");
+			System.out.println("2. Remove a contact");
 			System.out.println("------------------------------");
 			int n = sc.nextInt();
 			
 			switch(n) {
 			case 1: cs.addContact(new Contact(), contacts);
 			        break;
+			
+			case 2: System.out.println("Enter contact id to be removed");
+			        int id = sc.nextInt();
+			        Contact c = new Contact();
+					c.setContactId(id);
+			        try {
+						cs.removeContact(c, contacts);
+						
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+	                break;
+	                
+			case 3: System.out.println("Enter contact name to be searched");
+			        sc.nextLine();
+			        String name = sc.nextLine();
+			        try {
+						cs.searchContacyByName(name, contacts);
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+			        
+			        break;
+			 
+			   
+			default: System.exit(0);
 		
 			}
 		}
