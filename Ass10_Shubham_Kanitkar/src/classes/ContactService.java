@@ -1,6 +1,9 @@
 package classes;
 
 import java.util.*;
+
+import db.CreateConnection;
+
 import java.io.*;
 import java.sql.*;
 //import db.CreateConnection;
@@ -14,26 +17,26 @@ public class ContactService {
 	
 	public void addContact(Contact contact, List<Contact> contacts) {
 		
-		Scanner scan = new Scanner(System.in);
+		Scanner sc = new Scanner(System.in);
         int n;
         List<String> c = new ArrayList<>();
         
         System.out.println("Enter contact id : ");
-        contact.setContactId(scan.nextInt());
+        contact.setContactId(sc.nextInt());
+        sc.nextLine();
         
         System.out.println("Enter contact name : ");
-        scan.nextLine();
+        contact.setContactName(sc.nextLine());
         
-        contact.setContactName(scan.nextLine());
         System.out.println("Enter contact email : ");
-        contact.setContactEmailId(scan.nextLine());
+        contact.setContactEmailId(sc.nextLine());
         
         System.out.println("How many contact numbers does contact have :");
-        n = scan.nextInt();
+        n = sc.nextInt();
         System.out.println("Enter the contact numbers ");
-        scan.nextLine();
+        sc.nextLine();
         for(int i=0; i<n; i++)
-            c.add(scan.nextLine());
+            c.add(sc.nextLine());
         contact.setContactNumbers(c);
         
         contacts.add(contact);
@@ -158,12 +161,42 @@ public class ContactService {
 		return c;
 	}
 	
+	public Set<Contact> populateContactFromDb() throws SQLException, IOException{
+		
+		Set<Contact> resultSet = new HashSet<>();
+		Connection conn = CreateConnection.databaseConnection(dbConfigFile);
+		Statement statement = conn.createStatement();
+		ResultSet rs = statement.executeQuery("Select * From contact_tbl");
+		
+		
+		while (rs.next()) {
+			Contact contact = new Contact();
+			contact.setContactId(rs.getInt(1));
+			contact.setContactName(rs.getString(2));
+			contact.setContactEmailId(rs.getString(3));
+			String t = rs.getString(4);
+			if (t != null) {
+				contact.setContactNumbers(Arrays.asList(t.split(",")));
+			}
+			
+			resultSet.add(contact);
+		}
+		
+		statement.close();
+		conn.close();
+		return resultSet;
+	}
+	
+	public boolean addContacts(List<Contact> existingContacts, Set<Contact> set) {
+		return existingContacts.addAll(set);
+	}
+	
 	public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
 		
 		ContactService cs = new ContactService();
 		List<Contact> contacts = new ArrayList<>();
 		Scanner sc = new Scanner(System.in);
-		
+		Set<Contact> set = new HashSet<>();
 		
 		while (true) {
 			System.out.println("------------------------------");
@@ -255,6 +288,15 @@ public class ContactService {
 						System.out.println(contact.getContactName());
 					}
 				    break;
+				    
+			case 10: set = cs.populateContactFromDb();
+			         break;
+			         
+			case 11: cs.addContacts(contacts, set);
+			         for (Contact contact : contacts) {
+						System.out.println(contact.getContactName());
+					}
+				     break;
 			   
 			default: System.exit(0);
 		
