@@ -208,6 +208,9 @@ public class ContactService {
 			System.out.println("5. Add contact number to existing numbers");
 			System.out.println("6. Sort contacts according to name");
 			System.out.println("7. Add contacts from file");
+			System.out.println("8. Serialize");
+			System.out.println("9. Deserialize");
+			System.out.println("10. Add contacts from database");
 			System.out.println("------------------------------");
 			int n = sc.nextInt();
 			
@@ -290,13 +293,11 @@ public class ContactService {
 				    break;
 				    
 			case 10: set = cs.populateContactFromDb();
-			         break;
-			         
-			case 11: cs.addContacts(contacts, set);
+			         cs.addContacts(contacts, set);
 			         for (Contact contact : contacts) {
-						System.out.println(contact.getContactName());
-					}
-				     break;
+			        	 System.out.println(contact.getContactName());
+			        	 }
+			         break;
 			   
 			default: System.exit(0);
 		
